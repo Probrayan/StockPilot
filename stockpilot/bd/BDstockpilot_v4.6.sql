@@ -2,8 +2,9 @@
 -- Basado en el script original. Fuente: archivo proporcionado por el usuario. :contentReference[oaicite:1]{index=1}
 
 -- TABLAS --
-DROP DATABASE IF EXISTS bdstockpilot;
-CREATE DATABASE StockPilot;
+DROP DATABASE IF EXISTS stockpilot;
+CREATE DATABASE stockPilot;
+
 CREATE TABLE usuario (
     idusu INT(10) PRIMARY KEY AUTO_INCREMENT,
     nomusu VARCHAR(100),
@@ -271,6 +272,16 @@ CREATE TABLE auditoria (
     ip VARCHAR(45)
 );
 
+CREATE TABLE lote (
+    idlote INT(10) PRIMARY KEY AUTO_INCREMENT,
+    idprod INT(10),          -- Producto asociado
+    codlote VARCHAR(50),     -- Código o referencia del lote
+    fecven DATE,             -- Fecha de vencimiento (opcional)
+    cant INT,                -- Cantidad disponible en el lote
+    fec_crea DATETIME,
+    fec_actu DATETIME
+);
+
 -- INDICES --
 
 -- Mantengo índices únicos de negocio (si quieres que los quite, lo hago)
@@ -324,6 +335,8 @@ ALTER TABLE detsalida ADD KEY fk_detsal_idsol (idsol);
 ALTER TABLE detsalida ADD KEY fk_detsal_idprod (idprod);
 
 ALTER TABLE valor ADD KEY fk_val_iddom (iddom);
+
+ALTER TABLE lote ADD KEY fk_lote_idprod (idprod);
 
 -- RELACIONES --
 
@@ -390,6 +403,8 @@ ALTER TABLE pxp ADD CONSTRAINT fkpxpg FOREIGN KEY (idpag) REFERENCES pagina(idpa
 
 ALTER TABLE auditoria ADD CONSTRAINT fkauem FOREIGN KEY (idemp) REFERENCES empresa(idemp);
 ALTER TABLE auditoria ADD CONSTRAINT fkauus FOREIGN KEY (idusu) REFERENCES usuario(idusu);
+
+ALTER TABLE lote ADD CONSTRAINT fk_lote_prod FOREIGN KEY (idprod) REFERENCES producto(idprod);
 
 -- DATOS DE PRUEBA --
 
