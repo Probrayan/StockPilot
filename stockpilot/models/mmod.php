@@ -1,29 +1,21 @@
 <?php
 
-class MVal{
-    private $idval;
-    private $nomval;
-    private $iddom;
-    private $codval;
-    private $desval;
+class Mmod{
+    private $idmod;
+    private $nommod;
+    private $desmod;
     private $fec_crea;
     private $fec_actu;
     private $act;
 
-    function getIdval(){
-        return $this->idval;
+    function getIdmod(){
+        return $this->idmod;
     }
-    function getNomval(){
-        return $this->nomval;
+    function getNommod(){
+        return $this->nommod;
     }
-    function getIddom(){
-        return $this->iddom;
-    }
-    function getCodval(){
-        return $this->codval;
-    }
-    function getDesval(){
-        return $this->desval;
+    function getDesmod(){
+        return $this->desmod;
     }
     function getFec_crea(){
         return $this->fec_crea;
@@ -34,20 +26,14 @@ class MVal{
     function getAct(){
         return $this->act;
     }
-    function setIdval($idval){
-        $this->idval = $idval;
+    function setIdmod($idmod){
+        $this->idmod = $idmod;
     }
-    function setNomval($nomval){
-        $this->nomval = $nomval;
+    function setNommod($nommod){
+        $this->nommod = $nommod;
     }
-    function setIddom($iddom){
-        $this->iddom = $iddom;
-    }
-    function setCodval($codval){
-        $this->codval = $codval;
-    }
-    function setDesval($desval){
-        $this->desval = $desval;
+    function setDesmod($desmod){
+        $this->desmod = $desmod;
     }
     function setFec_crea($fec_crea){
         $this->fec_crea = $fec_crea;
@@ -61,7 +47,7 @@ class MVal{
 
     public function getAll(){
         try{
-            $sql = "SELECT idval, nomval, iddom, codval, desval, fec_crea, fec_actu, act FROM valor";
+            $sql = "SELECT idmod, nommod, desmod, fec_crea, fec_actu, act FROM modulo";
             $modelo = new conexion();
             $conexion = $modelo->get_conexion();
             $result = $conexion->prepare($sql);
@@ -75,12 +61,12 @@ class MVal{
 
     public function getOne(){
         try{
-            $sql = "SELECT idval, nomval, iddom, codval, desval, fec_crea, fec_actu, act FROM valor WHERE idval=:idval";
+            $sql = "SELECT idmod, nommod, desmod, fec_crea, fec_actu, act FROM modulo WHERE idmod=:idmod";
             $modelo = new conexion();
             $conexion = $modelo->get_conexion();
             $result = $conexion->prepare($sql);
-            $idval = $this->getIdval();
-            $result->bindParam(':idval', $idval);
+            $idmod = $this->getIdmod();
+            $result->bindParam(':idmod', $idmod);
             $result->execute();
             $res = $result->fetchAll(PDO::FETCH_ASSOC);
             return $res;
@@ -91,18 +77,14 @@ class MVal{
 
     public function save(){
         try{
-            $sql = "INSERT INTO valor(nomval, iddom, codval, desval, fec_crea, fec_actu, act) VALUES (:nomval, :iddom, :codval, :desval, :fec_crea, :fec_actu, :act) ";
+            $sql = "INSERT INTO modulo(nommod, desmod, fec_crea, fec_actu, act) VALUES (:nommod, :desmod, :fec_crea, :fec_actu, :act) ";
             $modelo = new conexion();
             $conexion = $modelo->get_conexion();
             $result = $conexion->prepare($sql);
-            $nomval = $this->getNomval();
-            $result->bindParam(':nomval', $nomval);
-            $iddom = $this->getIddom();
-            $result->bindParam(':iddom', $iddom);
-            $codval = $this->getCodval();
-            $result->bindParam(':codval', $codval);
-            $desval = $this->getDesval();
-            $result->bindParam(':desval', $desval);
+            $nommod = $this->getNommod();
+            $result->bindParam(':nommod', $nommod);
+            $desmod = $this->getDesmod();
+            $result->bindParam(':desmod', $desmod);
             $fec_crea = $this->getFec_crea();
             $result->bindParam(':fec_crea', $fec_crea);
             $fec_actu = $this->getFec_actu();
@@ -119,20 +101,16 @@ class MVal{
 
     public function edit(){
         try{
-            $sql = "UPDATE valor SET nomval=:nomval, iddom=:iddom, codval=:codval, desval=:desval, fec_crea=:fec_crea, fec_actu=:fec_actu, act=:act WHERE idval=:idval";
+            $sql = "UPDATE modulo SET nommod=:nommod, desmod=:desmod, fec_crea=:fec_crea, fec_actu=:fec_actu, act=:act WHERE idmod=:idmod";
             $modelo = new conexion();
             $conexion = $modelo->get_conexion();
             $result = $conexion->prepare($sql);
-            $idval = $this->getIdval();
-            $result->bindParam(':idval', $idval);
-            $nomval = $this->getNomval();
-            $result->bindParam(':nomval', $nomval);
-            $iddom = $this->getIddom();
-            $result->bindParam(':iddom', $iddom);
-            $codval = $this->getCodval();
-            $result->bindParam(':codval', $codval);
-            $desval = $this->getDesval();
-            $result->bindParam(':desval', $desval);
+            $idmod = $this->getIdmod();
+            $result->bindParam(':idmod', $idmod);
+            $nommod = $this->getNommod();
+            $result->bindParam(':nommod', $nommod);
+            $desmod = $this->getDesmod();
+            $result->bindParam(':desmod', $desmod);
             $fec_crea = $this->getFec_crea();
             $result->bindParam(':fec_crea', $fec_crea);
             $fec_actu = $this->getFec_actu();
@@ -149,25 +127,12 @@ class MVal{
 
     public function del(){
         try{
-            $sql = "DELETE FROM valor WHERE idval=:idval";
+            $sql = "DELETE FROM modulo WHERE idmod=:idmod";
             $modelo = new conexion();
             $conexion = $modelo->get_conexion();
             $result = $conexion->prepare($sql);
-            $idval = $this->getIdval();
-            $result->bindParam(':idval', $idval);
-            $result->execute();
-            $res = $result->fetchAll(PDO::FETCH_ASSOC);
-            return $res;
-        }catch(Exception $e){
-            echo "Error".$e."<br><br>";
-        }
-    }
-    public function getAllDom(){
-        try{
-            $sql = "SELECT iddom, nomdom, desdom, fec_crea, fec_actu, act FROM dominio";
-            $modelo = new conexion();
-            $conexion = $modelo->get_conexion();
-            $result = $conexion->prepare($sql);
+            $idmod = $this->getIdmod();
+            $result->bindParam(':idmod', $idmod);
             $result->execute();
             $res = $result->fetchAll(PDO::FETCH_ASSOC);
             return $res;
@@ -176,4 +141,5 @@ class MVal{
         }
     }
 }
+
 ?>

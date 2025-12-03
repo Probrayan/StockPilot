@@ -15,9 +15,11 @@ class Msosal {
     // Obtener todos los detalles de salida
     public function getAll($idsol) {
         try {
-            $sql = "SELECT d.iddet, d.idsol, d.idprod, p.nomprod, d.cantdet, d.vundet, d.totdet
+            // Usamos LEFT JOIN y COALESCE
+            $sql = "SELECT d.iddet, d.idsol, d.idprod, COALESCE(p.nomprod, 'Producto no encontrado') as nomprod, 
+                           d.cantdet, d.vundet, (d.cantdet * d.vundet) as totdet
                     FROM detsalida d
-                    INNER JOIN producto p ON d.idprod = p.idprod
+                    LEFT JOIN producto p ON d.idprod = p.idprod
                     WHERE d.idsol = :idsol AND d.idemp = :idemp
                     ORDER BY d.iddet DESC";
             
@@ -30,7 +32,7 @@ class Msosal {
             
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            error_log("Error en getAll: " . $e->getMessage());
+            error_log("Error en Msosal::getAll() - " . $e->getMessage());
             return [];
         }
     }
@@ -38,12 +40,14 @@ class Msosal {
     // Guardar detalle
     public function save($data) {
         try {
-            $sql = "INSERT INTO detsalida (idsol, idprod, cantdet, vundet, totdet, idemp)
-                    VALUES (:idsol, :idprod, :cantdet, :vundet, :totdet, :idemp)";
+            $sql = "INSERT INTO detsalida (idsol, idprod, cantdet, vundet, idemp, fec_crea)
+                    VALUES (:idsol, :idprod, :cantdet, :vundet, :idemp, NOW())";
             
             $modelo = new conexion();
             $conexion = $modelo->get_conexion();
             $stmt = $conexion->prepare($sql);
+            
+            if(isset($data[':totdet'])) unset($data[':totdet']);
             
             $result = $stmt->execute($data);
             
@@ -53,7 +57,7 @@ class Msosal {
             
             return true;
         } catch (PDOException $e) {
-            error_log("Error en save: " . $e->getMessage());
+            error_log("Error en Msosal::save() - " . $e->getMessage());
             return false;
         }
     }
@@ -70,7 +74,7 @@ class Msosal {
             
             return $stmt->execute();
         } catch (PDOException $e) {
-            error_log("Error en delete: " . $e->getMessage());
+            error_log("Error en Msosal::delete() - " . $e->getMessage());
             return false;
         }
     }
@@ -78,7 +82,7 @@ class Msosal {
     // Obtener total de la solicitud
     public function getTotal($idsol) {
         try {
-            $sql = "SELECT SUM(totdet) as total FROM detsalida 
+            $sql = "SELECT SUM(cantdet * vundet) as total FROM detsalida 
                     WHERE idsol = :idsol AND idemp = :idemp";
             
             $modelo = new conexion();
@@ -91,28 +95,77 @@ class Msosal {
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             return $result['total'] ?? 0;
         } catch (PDOException $e) {
-            error_log("Error en getTotal: " . $e->getMessage());
+            error_log("Error en Msosal::getTotal() - " . $e->getMessage());
             return 0;
         }
     }
-
-    // Verificar stock disponible antes de la salida
-    public function verificarStockDisponible($idprod, $cantidad) {
+    
+    // Verificar stock disponible
+    public function verificarStockDisponible($idprod, $cantidadSolicitada) {
         try {
-            $sql = "SELECT stock FROM producto WHERE idprod = :idprod";
+            $sql = "SELECT COALESCE(SUM(CASE WHEN tipmov = 1 THEN cantmov ELSE -cantmov END), 0) as stock
+                    FROM movim 
+                    WHERE idprod = :idprod AND idemp = :idemp";
+            
             $modelo = new conexion();
             $conexion = $modelo->get_conexion();
             $stmt = $conexion->prepare($sql);
             $stmt->bindParam(":idprod", $idprod, PDO::PARAM_INT);
+            $stmt->bindParam(":idemp", $this->idemp, PDO::PARAM_INT);
             $stmt->execute();
             
-            $producto = $stmt->fetch(PDO::FETCH_ASSOC);
-            if ($producto) {
-                return $producto['stock'] >= $cantidad;
-            }
-            return false;
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            $stockActual = $result['stock'] ?? 0;
+            
+            return $stockActual >= $cantidadSolicitada;
+            
         } catch (PDOException $e) {
-            error_log("Error en verificarStockDisponible: " . $e->getMessage());
+            error_log("Error en Msosal::verificarStockDisponible() - " . $e->getMessage());
+            return false;
+        }
+    }
+
+    // Aprobar solicitud y crear movimientos en Kardex
+    public function aprobarSolicitud($idsol, $idkar, $idubi, $idusu) {
+        try {
+            $modelo = new conexion();
+            $conexion = $modelo->get_conexion();
+            $conexion->beginTransaction();
+            
+            $detalles = $this->getAll($idsol);
+            
+            if (empty($detalles)) {
+                throw new Exception("No hay detalles para aprobar");
+            }
+            
+            foreach ($detalles as $detalle) {
+                if (!$this->verificarStockDisponible($detalle['idprod'], $detalle['cantdet'])) {
+                    throw new Exception("Stock insuficiente para el producto: " . $detalle['nomprod']);
+                }
+                
+                $sqlMov = "INSERT INTO movim (idkar, idprod, idubi, idusu, idemp, tipmov, cantmov, valmov, fecmov, fec_crea)
+                          VALUES (:idkar, :idprod, :idubi, :idusu, :idemp, 2, :cantmov, :valmov, NOW(), NOW())";
+                
+                $stmtMov = $conexion->prepare($sqlMov);
+                $stmtMov->execute([
+                    ':idkar' => $idkar,
+                    ':idprod' => $detalle['idprod'],
+                    ':idubi' => $idubi,
+                    ':idusu' => $idusu,
+                    ':idemp' => $this->idemp,
+                    ':cantmov' => $detalle['cantdet'],
+                    ':valmov' => $detalle['vundet']
+                ]);
+            }
+            
+            $conexion->commit();
+            return true;
+            
+        } catch (Exception $e) {
+            if (isset($conexion)) {
+                $conexion->rollBack();
+            }
+            error_log("Error en Msosal::aprobarSolicitud() - " . $e->getMessage());
             return false;
         }
     }

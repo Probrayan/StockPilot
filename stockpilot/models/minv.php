@@ -1,6 +1,5 @@
 <?php
 
-require_once(__DIR__ . '/conexion.php');
 class MInv{
     private $idinv;
     private $idprod;
@@ -47,18 +46,18 @@ class MInv{
     }
 
     public function getAll(){
-        try{
-            $sql = "SELECT idinv, idprod, idubi, cant, fec_crea, fec_actu FROM inventario";
-            $modelo = new conexion();
-            $conexion = $modelo->get_conexion();
-            $result = $conexion->prepare($sql);
-            $result->execute();
-            $res = $result->fetchAll(PDO::FETCH_ASSOC);
-            return $res;
-        }catch(Exception $e){
-            echo "Error".$e."<br><br>";
-        }
+    try{
+        $sql = "SELECT i.idinv, i.idprod, p.nomprod,  i.idubi, u.nomubi,  c.idcat, c.nomcat,  i.cant, i.fec_crea, i.fec_actu FROM inventario i INNER JOIN producto p ON i.idprod = p.idprod INNER JOIN categoria c ON p.idcat = c.idcat INNER JOIN ubicacion u ON i.idubi = u.idubi";
+        $modelo = new conexion();
+        $conexion = $modelo->get_conexion();
+        $result = $conexion->prepare($sql);
+        $result->execute();
+        $res = $result->fetchAll(PDO::FETCH_ASSOC);
+        return $res;
+    }catch(Exception $e){
+        echo "Error: ".$e->getMessage()."<br><br>";
     }
+}
 
     public function getOne(){
         try{
@@ -100,7 +99,7 @@ class MInv{
         }
     }
 
-    public function edit(){
+    public function upd(){
         try{
             $sql = "UPDATE inventario SET idprod=:idprod, idubi=:idubi, cant=:cant, fec_crea=:fec_crea, fec_actu=:fec_actu WHERE idinv=:idinv";
             $modelo = new conexion();
@@ -141,5 +140,21 @@ class MInv{
             echo "Error".$e."<br><br>";
         }
     }
+
+
+     public function gettablas(){
+        try{
+            $sql = "SELECT i.idinv,p.idprod FROM inventario i INNER JOIN productos p ON i.idprod = p.idprod";
+            $modelo = new conexion();
+            $conexion = $modelo->get_conexion();
+            $result = $conexion->prepare($sql);
+            $result->execute();
+            $res = $result->fetchAll(PDO::FETCH_ASSOC);
+            return $res;
+        }catch(Exception $e){
+            echo "Error".$e."<br><br>";
+        }
+    }
+
 }
 ?>

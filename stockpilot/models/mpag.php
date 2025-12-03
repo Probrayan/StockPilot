@@ -1,29 +1,33 @@
 <?php
-
-class MVal{
-    private $idval;
-    private $nomval;
-    private $iddom;
-    private $codval;
-    private $desval;
+class Mpag{
+    private $idpag;
+    private $nompag;
+    private $icpag;
+    private $pespag;
+    private $rugpag;
+    private $mospag;
     private $fec_crea;
     private $fec_actu;
     private $act;
 
-    function getIdval(){
-        return $this->idval;
+    // Getters
+    function getIdpag(){
+        return $this->idpag;
     }
-    function getNomval(){
-        return $this->nomval;
+    function getNompag(){
+        return $this->nompag;
     }
-    function getIddom(){
-        return $this->iddom;
+    function getIcpag(){
+        return $this->icpag;
     }
-    function getCodval(){
-        return $this->codval;
+    function getPespag(){
+        return $this->pespag;
     }
-    function getDesval(){
-        return $this->desval;
+    function getRugpag(){
+        return $this->rugpag;
+    }
+    function getMospag(){
+        return $this->mospag;
     }
     function getFec_crea(){
         return $this->fec_crea;
@@ -34,20 +38,25 @@ class MVal{
     function getAct(){
         return $this->act;
     }
-    function setIdval($idval){
-        $this->idval = $idval;
+
+    // Setters
+    function setNompag($nompag){
+        $this->nompag = $nompag;
     }
-    function setNomval($nomval){
-        $this->nomval = $nomval;
+    function setIcpag($icpag){
+        $this->icpag = $icpag;
     }
-    function setIddom($iddom){
-        $this->iddom = $iddom;
+    function setPespag($pespag){
+        $this->pespag = $pespag;
     }
-    function setCodval($codval){
-        $this->codval = $codval;
+    function setRugpag($rugpag){
+        $this->rugpag = $rugpag;
     }
-    function setDesval($desval){
-        $this->desval = $desval;
+    function setMospag($mospag){
+        $this->mospag = $mospag;
+    }
+    function setidpag($idpag){
+        $this->idpag = $idpag;
     }
     function setFec_crea($fec_crea){
         $this->fec_crea = $fec_crea;
@@ -61,7 +70,7 @@ class MVal{
 
     public function getAll(){
         try{
-            $sql = "SELECT idval, nomval, iddom, codval, desval, fec_crea, fec_actu, act FROM valor";
+            $sql = "SELECT * FROM pagina";
             $modelo = new conexion();
             $conexion = $modelo->get_conexion();
             $result = $conexion->prepare($sql);
@@ -75,12 +84,12 @@ class MVal{
 
     public function getOne(){
         try{
-            $sql = "SELECT idval, nomval, iddom, codval, desval, fec_crea, fec_actu, act FROM valor WHERE idval=:idval";
+            $sql = "SELECT * FROM pagina WHERE idpag=:idpag";
             $modelo = new conexion();
             $conexion = $modelo->get_conexion();
             $result = $conexion->prepare($sql);
-            $idval = $this->getIdval();
-            $result->bindParam(':idval', $idval);
+            $idpag = $this->getIdpag();
+            $result->bindParam(':idpag', $idpag);
             $result->execute();
             $res = $result->fetchAll(PDO::FETCH_ASSOC);
             return $res;
@@ -91,18 +100,23 @@ class MVal{
 
     public function save(){
         try{
-            $sql = "INSERT INTO valor(nomval, iddom, codval, desval, fec_crea, fec_actu, act) VALUES (:nomval, :iddom, :codval, :desval, :fec_crea, :fec_actu, :act) ";
+            $sql = "INSERT INTO pagina(nompag, icpag, pespag, rugpag, mospag, idpag, fec_crea, fec_actu, act) 
+                    VALUES (:nompag, :icpag, :pespag, :rugpag, :mospag, :idpag, :fec_crea, :fec_actu, :act)";
             $modelo = new conexion();
             $conexion = $modelo->get_conexion();
             $result = $conexion->prepare($sql);
-            $nomval = $this->getNomval();
-            $result->bindParam(':nomval', $nomval);
-            $iddom = $this->getIddom();
-            $result->bindParam(':iddom', $iddom);
-            $codval = $this->getCodval();
-            $result->bindParam(':codval', $codval);
-            $desval = $this->getDesval();
-            $result->bindParam(':desval', $desval);
+            $nompag = $this->getNompag();
+            $result->bindParam(':nompag', $nompag);
+            $icpag = $this->getIcpag();
+            $result->bindParam(':icpag', $icpag);
+            $pespag = $this->getPespag();
+            $result->bindParam(':pespag', $pespag);
+            $rugpag = $this->getRugpag();
+            $result->bindParam(':rugpag', $rugpag);
+            $mospag = $this->getMospag();
+            $result->bindParam(':mospag', $mospag);
+            $idpag = $this->getidpag();
+            $result->bindParam(':idpag', $idpag);
             $fec_crea = $this->getFec_crea();
             $result->bindParam(':fec_crea', $fec_crea);
             $fec_actu = $this->getFec_actu();
@@ -119,20 +133,26 @@ class MVal{
 
     public function edit(){
         try{
-            $sql = "UPDATE valor SET nomval=:nomval, iddom=:iddom, codval=:codval, desval=:desval, fec_crea=:fec_crea, fec_actu=:fec_actu, act=:act WHERE idval=:idval";
+            $sql = "UPDATE pagina SET nompag=:nompag, icpag=:icpag, pespag=:pespag, rugpag=:rugpag, mospag=:mospag, idpag=:idpag, 
+                        fec_crea=:fec_crea, fec_actu=:fec_actu, act=:act 
+                    WHERE idpag=:idpag";
             $modelo = new conexion();
             $conexion = $modelo->get_conexion();
             $result = $conexion->prepare($sql);
-            $idval = $this->getIdval();
-            $result->bindParam(':idval', $idval);
-            $nomval = $this->getNomval();
-            $result->bindParam(':nomval', $nomval);
-            $iddom = $this->getIddom();
-            $result->bindParam(':iddom', $iddom);
-            $codval = $this->getCodval();
-            $result->bindParam(':codval', $codval);
-            $desval = $this->getDesval();
-            $result->bindParam(':desval', $desval);
+            $idpag = $this->getIdpag();
+            $result->bindParam(':idpag', $idpag);
+            $nompag = $this->getNompag();
+            $result->bindParam(':nompag', $nompag);
+            $icpag = $this->getIcpag();
+            $result->bindParam(':icpag', $icpag);
+            $pespag = $this->getPespag();
+            $result->bindParam(':pespag', $pespag);
+            $rugpag = $this->getRugpag();
+            $result->bindParam(':rugpag', $rugpag);
+            $mospag = $this->getMospag();
+            $result->bindParam(':mospag', $mospag);
+            $idpag = $this->getidpag();
+            $result->bindParam(':idpag', $idpag);
             $fec_crea = $this->getFec_crea();
             $result->bindParam(':fec_crea', $fec_crea);
             $fec_actu = $this->getFec_actu();
@@ -149,12 +169,12 @@ class MVal{
 
     public function del(){
         try{
-            $sql = "DELETE FROM valor WHERE idval=:idval";
+            $sql = "DELETE FROM pagina WHERE idpag=:idpag";
             $modelo = new conexion();
             $conexion = $modelo->get_conexion();
             $result = $conexion->prepare($sql);
-            $idval = $this->getIdval();
-            $result->bindParam(':idval', $idval);
+            $idpag = $this->getIdpag();
+            $result->bindParam(':idpag', $idpag);
             $result->execute();
             $res = $result->fetchAll(PDO::FETCH_ASSOC);
             return $res;
@@ -162,9 +182,10 @@ class MVal{
             echo "Error".$e."<br><br>";
         }
     }
-    public function getAllDom(){
+
+    public function getPagPadre(){
         try{
-            $sql = "SELECT iddom, nomdom, desdom, fec_crea, fec_actu, act FROM dominio";
+            $sql = "SELECT idpag, nompag FROM pagina WHERE idpag IS NULL AND act = 1";
             $modelo = new conexion();
             $conexion = $modelo->get_conexion();
             $result = $conexion->prepare($sql);
@@ -176,4 +197,5 @@ class MVal{
         }
     }
 }
+
 ?>
