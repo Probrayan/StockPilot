@@ -2,5 +2,8 @@
 include("models/mmen.php");
 
 $mmen = new Mmen();
-$datm = $mmen->menu($_SESSION['idper']);
+$datm = [];
+if (isset($_SESSION['idper'])) {
+    $datm = $mmen->menu($_SESSION['idper']);
+}
 ?>

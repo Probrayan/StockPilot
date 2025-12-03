@@ -20,10 +20,25 @@ if($ope == "save"){
     $mdom->setFec_crea($fec_crea);
     $mdom->setFec_actu($fec_actu);
     $mdom->setAct($act);
-    if(!$iddom) $mdom->save(); else $mdom->edit();
+    // Guardar o actualizar
+    if ($iddom) {
+        $mdom->edit();
+        echo "<script>window.location.href = 'home.php?pg=$pg&msg=updated';</script>";
+        exit;
+    } else {
+        $mdom->save();
+        echo "<script>window.location.href = 'home.php?pg=$pg&msg=saved';</script>";
+        exit;
+    }
 }
 
-if($ope =="eli" && $iddom) $mdom->del();
+if ($ope == "eli" && $iddom) {
+    $mdom->setIddom($iddom);
+    $mdom->del();
+    echo "<script>window.location.href = 'home.php?pg=$pg&msg=deleted';</script>";
+    exit;
+}
+
 if($ope =="edi" && $iddom) $datOne = $mdom->getOne();
 
 $datAll = $mdom->getAll();

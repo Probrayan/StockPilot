@@ -1,5 +1,7 @@
 <?php
-require_once('models/mubi.php');
+require_once(__DIR__ . '/../models/config.php');
+require_once(__DIR__ . '/../models/mubi.php');
+require_once(__DIR__ . '/../models/conexion.php');
 
 $mubi = new MUbi();
 
@@ -20,6 +22,18 @@ $datOne = NULL;
 
 $mubi->setIdubi($idubi);
 if($ope == "save"){
+    require_once('models/maud.php');
+    $maud = new MAud();
+    $accion = $idubi ? 2 : 1; // 1=INSERT, 2=UPDATE
+    $datos_ant = $idubi ? json_encode($mubi->getOne()) : null;
+    
+    // Generar fechas automáticamente
+    $fec_actu = date('Y-m-d H:i:s');
+    $fec_crea = $idubi ? $fec_crea : $fec_actu; // Solo generar fec_crea si es nuevo
+    
+    // Forzar idemp de la sesión para asegurar que solo se guarde en la empresa del usuario
+    $idemp = $_SESSION['idemp'];
+    
     $mubi->setNomubi($nomubi);
     $mubi->setCodubi($codubi);
     $mubi->setDirubi($dirubi);
@@ -30,11 +44,72 @@ if($ope == "save"){
     $mubi->setFec_crea($fec_crea);
     $mubi->setFec_actu($fec_actu);
     $mubi->setAct($act);
-    if(!$idubi) $mubi->save(); else $mubi->edit();
+    
+    if(!$idubi) {
+        // INSERT
+        $idreg = $mubi->save(); // Capturar el ID insertado
+        if($idreg){
+            // Registrar auditoría
+            $maud->setIdemp($idemp);
+            $maud->setIdusu($_SESSION['idusu']);
+            $maud->setTabla('ubicacion');
+            $maud->setAccion($accion);
+            $maud->setIdreg($idreg);
+            $maud->setDatos_ant($datos_ant);
+            $maud->setDatos_nue(json_encode($_POST));
+            $maud->setFecha($fec_actu);
+            $maud->setIp($_SERVER['REMOTE_ADDR']);
+            $maud->save();
+        }
+    } else {
+        // UPDATE
+        $resultado = $mubi->edit();
+        if($resultado){
+            // Registrar auditoría
+            $maud->setIdemp($idemp);
+            $maud->setIdusu($_SESSION['idusu']);
+            $maud->setTabla('ubicacion');
+            $maud->setAccion($accion);
+            $maud->setIdreg($idubi);
+            $maud->setDatos_ant($datos_ant);
+            $maud->setDatos_nue(json_encode($_POST));
+            $maud->setFecha($fec_actu);
+            $maud->setIp($_SERVER['REMOTE_ADDR']);
+            $maud->save();
+        }
+    }
 }
 
-if($ope =="eli" && $idubi) $mubi->del();
+if($ope =="eli" && $idubi) {
+    require_once('models/maud.php');
+    $maud = new MAud();
+    $datos_ant = json_encode($mubi->getOne());
+    
+    $resultado = $mubi->del();
+    if($resultado){
+        // Registrar auditoría
+        $maud->setIdemp($idemp);
+        $maud->setIdusu($_SESSION['idusu']);
+        $maud->setTabla('ubicacion');
+        $maud->setAccion(3); // 3=DELETE
+        $maud->setIdreg($idubi);
+        $maud->setDatos_ant($datos_ant);
+        $maud->setDatos_nue(null);
+        $maud->setFecha(date('Y-m-d H:i:s'));
+        $maud->setIp($_SERVER['REMOTE_ADDR']);
+        $maud->save();
+    }
+    $mubi->del();
+}
 if($ope =="edi" && $idubi) $datOne = $mubi->getOne();
 
-$datAll = $mubi->getAll();
+require_once(__DIR__ . '/../models/memp.php');
+require_once(__DIR__ . '/../models/musu.php');
+$memp = new Memp();
+$musu = new Musu();
+$empresas = $memp->getAll();
+$responsables = $musu->getUsuariosPorEmpresa($_SESSION['idemp']);
+
+// Filtrar por empresa del usuario
+$datAll = $mubi->getAll($_SESSION['idemp']);
 ?>

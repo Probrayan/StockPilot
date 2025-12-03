@@ -20,10 +20,24 @@ if($ope == "save"){
     $minv->setCant($cant);
     $minv->setFec_crea($fec_crea);
     $minv->setFec_actu($fec_actu);
-    if(!$idinv) $minv->save(); else $minv->edit();
+    // Guardar o actualizar
+    if ($idinv) {
+        $minv->upd();
+        echo "<script>window.location.href = 'home.php?pg=$pg&msg=updated';</script>";
+        exit;
+    } else {
+        $minv->save();
+        echo "<script>window.location.href = 'home.php?pg=$pg&msg=saved';</script>";
+        exit;
+    }
 }
 
-if($ope =="eli" && $idinv) $minv->del();
+if ($ope == "eli" && $idinv) {
+    $minv->setIdinv($idinv);
+    $minv->del();
+    echo "<script>window.location.href = 'home.php?pg=$pg&msg=deleted';</script>";
+    exit;
+}
 if($ope =="edi" && $idinv) $datOne = $minv->getOne();
 
 $datAll = $minv->getAll();

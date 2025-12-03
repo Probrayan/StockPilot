@@ -19,28 +19,34 @@ if ($ope == "save" && $idsol) {
     $vundet = isset($_POST['vundet']) ? $_POST['vundet'] : null;
     
     if ($idprod && $cantdet && $vundet) {
-        $data = [
-            ":idsol"   => $idsol,
-            ":idprod"  => $idprod,
-            ":cantdet" => $cantdet,
-            ":vundet"  => $vundet,
-            ":totdet"  => ($cantdet * $vundet),
-            ":idemp"   => $_SESSION['idemp']
-        ];
-        
-        if ($msosal->save($data)) {
-            $_SESSION['mensaje'] = "Producto agregado exitosamente";
-            $_SESSION['tipo_mensaje'] = "success";
+        // Verificar stock antes de guardar
+        if ($msosal->verificarStockDisponible($idprod, $cantdet)) {
+            $data = [
+                ":idsol"   => $idsol,
+                ":idprod"  => $idprod,
+                ":cantdet" => $cantdet,
+                ":vundet"  => $vundet,
+                ":idemp"   => $_SESSION['idemp']
+            ];
+            
+            if ($msosal->save($data)) {
+                $_SESSION['mensaje'] = "Se guardó correctamente";
+                $_SESSION['tipo_mensaje'] = "success";
+            } else {
+                $_SESSION['mensaje'] = "Error al agregar el producto";
+                $_SESSION['tipo_mensaje'] = "danger";
+            }
         } else {
-            $_SESSION['mensaje'] = "Error al agregar el producto";
-            $_SESSION['tipo_mensaje'] = "danger";
+            $_SESSION['mensaje'] = "Stock insuficiente para el producto seleccionado";
+            $_SESSION['tipo_mensaje'] = "warning";
         }
     } else {
         $_SESSION['mensaje'] = "Por favor complete todos los campos";
         $_SESSION['tipo_mensaje'] = "warning";
     }
     
-    echo "<script>window.location.href='home.php?pg=1016&idsol=" . $idsol . "';</script>";
+    session_write_close();
+    header("Location: home.php?pg=1014&idsol=" . $idsol);
     exit();
 }
 
@@ -55,7 +61,8 @@ if (isset($_GET['delete']) && $_GET['delete'] && $idsol) {
         $_SESSION['tipo_mensaje'] = "danger";
     }
     
-    echo "<script>window.location.href='home.php?pg=1016&idsol=" . $idsol . "';</script>";
+    session_write_close();
+    header("Location: home.php?pg=1014&idsol=" . $idsol);
     exit();
 }
 
@@ -98,13 +105,14 @@ if (isset($_GET['aprobar']) && $_GET['aprobar'] && $idsol) {
         }
     }
     
-    echo "<script>window.location.href='home.php?pg=1016&idsol=" . $idsol . "';</script>";
+    session_write_close();
+    header("Location: home.php?pg=1014&idsol=" . $idsol);
     exit();
 }
 
 // Traer productos para el select
 $mprod = new MProd();
-$productos = $mprod->getAll();
+$productos = $mprod->getAll($_SESSION['idemp'], $_SESSION['idper']);
 
 // Traer detalles de la solicitud actual
 $detalles = [];

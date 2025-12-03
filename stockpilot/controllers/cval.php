@@ -24,11 +24,26 @@ if($ope == "save"){
     $mval->setFec_crea($fec_crea);
     $mval->setFec_actu($fec_actu);
     $mval->setAct($act);
-    if(!$idval) $mval->save(); else $mval->edit();
+    if($idval){
+        $mval->edit();
+        echo "<script>window.location.href = 'home.php?pg=$pg&msg=updated';</script>";
+        exit;
+    } else {
+        $mval->save();
+        echo "<script>window.location.href = 'home.php?pg=$pg&msg=saved';</script>";
+        exit;
+    }
 }
-
-if($ope =="eli" && $idval) $mval->del();
-if($ope =="edi" && $idval) $datOne = $mval->getOne();
-
+if ($ope == "eli" && $idval) {
+    $mval->setIdval($idval);
+    $mval->del();
+    echo "<script>window.location.href = 'home.php?pg=$pg&msg=deleted';</script>";
+    exit;
+}
+if ($ope == "edi" && $idval) {
+    $mval->setIdval($idval);
+    $datOne = $mval->getOne();
+}
 $datAll = $mval->getAll();
+$datDom = $mval->getAllDom();
 ?>
