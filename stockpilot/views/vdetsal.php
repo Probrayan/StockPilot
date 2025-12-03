@@ -1,25 +1,25 @@
-<?php require_once __DIR__ . '/../controllers/csoent.php'; ?>
+<?php require_once __DIR__ . '/../controllers/cdetsal.php'; ?>
 
 <div class="container-fluid px-4 mt-4">
     <!-- Encabezado -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="h3 mb-0 text-gray-800">
-                <i class="fa-solid fa-dolly text-success me-2"></i>Detalle de Entrada
+                <i class="fa-solid fa-truck-ramp-box text-danger me-2"></i>Detalle de Salida
             </h1>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0 bg-transparent ps-0">
                     <li class="breadcrumb-item"><a href="home.php" class="text-decoration-none text-muted">Inicio</a></li>
-                    <li class="breadcrumb-item"><a href="home.php?pg=1015" class="text-decoration-none text-muted">Entradas</a></li>
+                    <li class="breadcrumb-item"><a href="home.php?pg=1014" class="text-decoration-none text-muted">Salidas</a></li>
                     <li class="breadcrumb-item active" aria-current="page">Detalle</li>
                 </ol>
             </nav>
         </div>
         <?php if (isset($detalles) && count($detalles) > 0): ?>
-            <a href="home.php?pg=1015&idsol=<?= $idsol ?>&aprobar=1" 
-               class="btn btn-success btn-lg shadow-sm" 
-               onclick="return confirm('¿Aprobar esta solicitud y crear movimientos en el Kardex?\n\nEsto agregará automáticamente los productos al inventario.')">
-                <i class="fa-solid fa-check-circle me-2"></i>Aprobar Entrada
+            <a href="home.php?pg=1014&idsol=<?= $idsol ?>&aprobar=1" 
+               class="btn btn-danger btn-lg shadow-sm" 
+               onclick="return confirm('¿Aprobar esta solicitud y crear movimientos de SALIDA en el Kardex?\n\nEsto disminuirá automáticamente los productos del inventario.')">
+                <i class="fa-solid fa-check-circle me-2"></i>Aprobar Salida
             </a>
         <?php endif; ?>
     </div>
@@ -46,13 +46,13 @@
         <!-- Columna Izquierda: Formulario de Registro -->
         <div class="col-lg-4">
             <div class="card shadow border-0 rounded-3 h-100">
-                <div class="card-header bg-success text-white py-3 rounded-top-3">
+                <div class="card-header bg-danger text-white py-3 rounded-top-3">
                     <h5 class="card-title mb-0 fw-bold">
-                        <i class="fa-solid fa-plus-circle me-2"></i>Agregar Producto
+                        <i class="fa-solid fa-minus-circle me-2"></i>Agregar Producto
                     </h5>
                 </div>
                 <div class="card-body p-4">
-                    <form action="home.php?pg=1015&idsol=<?= htmlspecialchars($idsol) ?>" method="POST" id="formDetalle">
+                    <form action="home.php?pg=1014&idsol=<?= htmlspecialchars($idsol) ?>" method="POST" id="formDetalle">
                         <input type="hidden" name="ope" value="save">
                         
                         <div class="mb-4">
@@ -60,7 +60,7 @@
                             <div class="input-group">
                                 <input type="hidden" name="idprod" id="idprod" required>
                                 <input type="text" class="form-control form-control-lg bg-white" id="nomprod_display" placeholder="Click en la lupa para buscar ->" readonly required style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modalProductos">
-                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalProductos" title="Buscar en catálogo">
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#modalProductos" title="Buscar en catálogo">
                                     <i class="fa-solid fa-search"></i>
                                 </button>
                             </div>
@@ -75,7 +75,7 @@
                                 </div>
                             </div>
                             <div class="col-6">
-                                <label for="vundet" class="form-label fw-bold text-secondary small text-uppercase">Costo Unit.</label>
+                                <label for="vundet" class="form-label fw-bold text-secondary small text-uppercase">Valor Unit.</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-secondary-subtle"><i class="fa-solid fa-dollar-sign text-muted"></i></span>
                                     <input type="number" name="vundet" id="vundet" class="form-control border-secondary-subtle" min="0" step="0.01" placeholder="0.00" required>
@@ -86,14 +86,14 @@
                         <div class="mb-4 p-3 bg-light rounded-3 border border-dashed">
                             <label class="form-label fw-bold text-secondary small text-uppercase mb-1">Total Estimado</label>
                             <div class="d-flex align-items-center justify-content-between">
-                                <span class="text-muted small">Cantidad x Costo</span>
-                                <h3 class="mb-0 text-success fw-bold" id="total_display">$0.00</h3>
+                                <span class="text-muted small">Cantidad x Valor</span>
+                                <h3 class="mb-0 text-danger fw-bold" id="total_display">$0.00</h3>
                             </div>
                             <input type="hidden" id="total_preview">
                         </div>
                         
                         <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success btn-lg shadow-sm">
+                            <button type="submit" class="btn btn-danger btn-lg shadow-sm">
                                 <i class="fa-solid fa-save me-2"></i>Guardar Registro
                             </button>
                             <button type="reset" class="btn btn-light text-muted border">
@@ -113,7 +113,7 @@
                         <i class="fa-solid fa-list-check me-2"></i>Items Registrados
                     </h5>
                     <?php if (isset($detalles) && count($detalles) > 0): ?>
-                        <span class="badge bg-success-subtle text-success border border-success px-3 py-2 rounded-pill">
+                        <span class="badge bg-danger-subtle text-danger border border-danger px-3 py-2 rounded-pill">
                             <?= count($detalles) ?> productos
                         </span>
                     <?php endif; ?>
@@ -126,7 +126,7 @@
                                     <tr>
                                         <th class="ps-4 py-3">Producto</th>
                                         <th class="text-center py-3">Cantidad</th>
-                                        <th class="text-end py-3">Costo Unit.</th>
+                                        <th class="text-end py-3">Valor Unit.</th>
                                         <th class="text-end py-3">Subtotal</th>
                                         <th class="text-center py-3 pe-4">Acción</th>
                                     </tr>
@@ -140,8 +140,8 @@
                                     <tr>
                                         <td class="ps-4 fw-bold text-dark">
                                             <div class="d-flex align-items-center">
-                                                <div class="bg-success-subtle text-success rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
-                                                    <i class="fa-solid fa-box"></i>
+                                                <div class="bg-danger-subtle text-danger rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+                                                    <i class="fa-solid fa-box-open"></i>
                                                 </div>
                                                 <?= htmlspecialchars($d['nomprod']) ?>
                                             </div>
@@ -152,9 +152,9 @@
                                             </span>
                                         </td>
                                         <td class="text-end text-muted">$<?= number_format($d['vundet'], 2, ',', '.') ?></td>
-                                        <td class="text-end fw-bold text-success">$<?= number_format($d['totdet'], 2, ',', '.') ?></td>
+                                        <td class="text-end fw-bold text-danger">$<?= number_format($d['totdet'], 2, ',', '.') ?></td>
                                         <td class="text-center pe-4">
-                                            <a href="home.php?pg=1015&idsol=<?= $idsol ?>&delete=<?= $d['iddet'] ?>" 
+                                            <a href="home.php?pg=1014&idsol=<?= $idsol ?>&delete=<?= $d['iddet'] ?>" 
                                                class="btn btn-outline-danger btn-sm rounded-circle shadow-sm" 
                                                onclick="return confirm('¿Está seguro de eliminar este registro?')"
                                                data-bs-toggle="tooltip" title="Eliminar">
@@ -167,7 +167,7 @@
                                 <tfoot class="bg-light border-top">
                                     <tr>
                                         <td colspan="3" class="text-end py-3 pe-4 fw-bold text-secondary text-uppercase">Total General:</td>
-                                        <td class="text-end py-3 fw-bold text-success fs-5">$<?= number_format($gran_total, 2, ',', '.') ?></td>
+                                        <td class="text-end py-3 fw-bold text-danger fs-5">$<?= number_format($gran_total, 2, ',', '.') ?></td>
                                         <td></td>
                                     </tr>
                                 </tfoot>
@@ -176,10 +176,10 @@
                     <?php else: ?>
                         <div class="text-center py-5">
                             <div class="mb-3">
-                                <i class="fa-solid fa-clipboard-check fa-4x text-gray-300"></i>
+                                <i class="fa-solid fa-dolly-flatbed fa-4x text-gray-300"></i>
                             </div>
                             <h5 class="text-muted fw-bold">Sin registros aún</h5>
-                            <p class="text-muted small mb-0">Utilice el formulario de la izquierda para<br>agregar productos a esta entrada.</p>
+                            <p class="text-muted small mb-0">Utilice el formulario de la izquierda para<br>agregar productos a esta salida.</p>
                         </div>
                     <?php endif; ?>
                 </div>
@@ -192,7 +192,7 @@
 <div class="modal fade" id="modalProductos" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg rounded-4">
-            <div class="modal-header bg-success text-white border-0 rounded-top-4">
+            <div class="modal-header bg-danger text-white border-0 rounded-top-4">
                 <h5 class="modal-title fw-bold"><i class="fa-solid fa-boxes-stacked me-2"></i>Catálogo de Productos</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -204,6 +204,7 @@
                                 <th class="ps-4 py-3">Código</th>
                                 <th class="py-3">Nombre</th>
                                 <th class="py-3">Categoría</th>
+                                <th class="text-center py-3">Stock</th>
                                 <th class="text-end pe-4 py-3">Acción</th>
                             </tr>
                         </thead>
@@ -214,8 +215,13 @@
                                         <td class="ps-4 font-monospace text-muted"><?= htmlspecialchars($p['codprod'] ?? 'N/A') ?></td>
                                         <td class="fw-bold text-dark"><?= htmlspecialchars($p['nomprod']) ?></td>
                                         <td><span class="badge bg-secondary-subtle text-secondary rounded-pill"><?= htmlspecialchars($p['nomcat'] ?? 'General') ?></span></td>
+                                        <td class="text-center">
+                                            <span class="badge bg-<?= ($p['stock'] ?? 0) > 0 ? 'success' : 'danger' ?> rounded-pill px-3">
+                                                <?= htmlspecialchars($p['stock'] ?? 0) ?>
+                                            </span>
+                                        </td>
                                         <td class="text-end pe-4">
-                                            <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3 selecting-prod" 
+                                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 selecting-prod" 
                                                     data-id="<?= $p['idprod'] ?>" 
                                                     data-nombre="<?= htmlspecialchars($p['nomprod']) ?>"
                                                     data-bs-dismiss="modal">
@@ -270,9 +276,9 @@ document.addEventListener('DOMContentLoaded', function() {
         totalDisplay.textContent = formatter.format(total);
         
         // Animación simple
-        totalDisplay.classList.remove('text-success');
+        totalDisplay.classList.remove('text-danger');
         void totalDisplay.offsetWidth; // Trigger reflow
-        totalDisplay.classList.add('text-success');
+        totalDisplay.classList.add('text-danger');
     }
     
     if(cantidadInput && valorInput) {
@@ -329,8 +335,8 @@ document.addEventListener('DOMContentLoaded', function() {
 /* Estilos personalizados adicionales */
 .text-gray-800 { color: #2d3748; }
 .text-gray-300 { color: #e2e8f0; }
-.bg-success-subtle { background-color: #d1e7dd; }
+.bg-danger-subtle { background-color: #f8d7da; }
 .card { transition: transform 0.2s; }
 .card:hover { transform: translateY(-2px); }
-.table-hover tbody tr:hover { background-color: rgba(25, 135, 84, 0.05); }
+.table-hover tbody tr:hover { background-color: rgba(220, 53, 69, 0.05); }
 </style>
